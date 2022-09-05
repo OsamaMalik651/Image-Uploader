@@ -1,0 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  /* background-color: #000; */
+  height: 100%;
+}
+body {
+  min-height: 100vh;
+  max-width: 100%;
+  margin: 0 auto;
+  height: 100%;
+}
+.App {
+  background-color: #fafafb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.App > p {
+  justify-self: flex-end;
+}
