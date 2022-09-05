@@ -1,26 +1,37 @@
-const express = require('express');
+const express = require("express");
 const path = require('path');
-const generatePassword = require('password-generator');
+const bodyParser = require("body-parser");
+var cors = require('cors')
+const multer = require('multer');
+const {
+    ref,
+    uploadBytes,
+    getDownloadURL
+} = require("firebase/storage");
 
+const storage = require("./firebase");
 const app = express();
+app.use(cors())
+app.use(bodyParser.urlencoded({ extended: true }));
+const memoStorage = multer.memoryStorage();
+const upload = multer({ memoStorage });
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')));
 
 // Put all API endpoints under '/api'
-app.get('/api/passwords', (req, res) => {
-    const count = 5;
-
-    // Generate some passwords
-    const passwords = Array.from(Array(count).keys()).map(i =>
-        generatePassword(12, false)
-    )
-
-    // Return them as json
-    res.json(passwords);
-
-    console.log(`Sent ${count} passwords`);
-});
+app.post("/api/image-upload", upload.single("image"), async function (req, res) {
+    const file = req.file;
+    const imageRef = ref(storage, file.originalname);
+    const metatype = { contentType: file.mimetype, name: file.originalname };
+    await uploadBytes(imageRef, file.buffer, metatype)
+        .then((snapshot) => {
+            getDownloadURL(snapshot.ref).then((downloadURL) => {
+                res.send(downloadURL)
+            })
+        })
+        .catch((error) => console.log(error.message));
+})
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
